@@ -1,0 +1,27 @@
+# Server
+server:
+  port: 8080
+
+# Database
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/telegramauth
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  thymeleaf:
+    cache: false
+
+  # Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# Telegram
+telegram:
+  bot:
+    token: ${BOT_TOKEN:}
