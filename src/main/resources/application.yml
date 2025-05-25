@@ -5,8 +5,8 @@ server:
 # Database
 spring:
   datasource:
-    url: jdbc:h2:file:./data/telegramauth
-    driverClassName: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/users
+    driverClassName: org.postgresql.Driver
     username: sa
     password:
   thymeleaf:
@@ -24,4 +24,5 @@ spring:
 # Telegram
 telegram:
   bot:
-    token: ${BOT_TOKEN:}
+    token: 7725391656:AAFvxFgSxGs3QF0OflIoKUyioJdb3pC0HN0
+    username: FarEastCryptoBot
