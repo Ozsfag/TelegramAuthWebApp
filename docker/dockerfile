@@ -2,12 +2,20 @@ FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
-# Копируем только файлы, необходимые для установки зависимостей
+# Устанавливаем Maven
+RUN apt-get update && apt-get install -y maven
+
+# Копируем только pom.xml сначала для кэширования зависимостей
 COPY pom.xml .
+
+# Скачиваем зависимости (кэшируем этот слой)
+RUN mvn dependency:go-offline -B
+
+# Копируем исходный код
 COPY src ./src
 
 # Собираем приложение
-RUN mvn clean package -DskipTests
+RUN mvn package -DskipTests -B
 
-# Команда для запуска (используем точное имя файла)
+# Команда для запуска
 CMD ["java", "-jar", "target/telegram-webauth.jar"]
