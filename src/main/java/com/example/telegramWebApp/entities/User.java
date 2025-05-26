@@ -28,14 +28,8 @@ public class User {
   @Column(name = "user_name", unique = true, nullable = false)
   private String username;
 
-  @Column(name = "photo_url")
-  private String photoUrl;
-
   @Column(name = "auth_date")
   private Long authDate;
-
-  @Column(name = "last_login", nullable = false)
-  private LocalDateTime lastLogin;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   @Builder.Default

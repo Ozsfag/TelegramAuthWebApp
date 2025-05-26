@@ -1,8 +1,6 @@
-# Server
 server:
   port: 8080
 
-# Database
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/users
@@ -12,7 +10,6 @@ spring:
   thymeleaf:
     cache: false
 
-  # Hibernate
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,8 +17,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-# Telegram
 telegram:
   bot:
     token: 7725391656:AAFvxFgSxGs3QF0OflIoKUyioJdb3pC0HN0
