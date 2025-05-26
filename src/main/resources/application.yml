@@ -3,10 +3,12 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/users
+    url: jdbc:postgresql://dpg-d0qeieruibrs73ei1s7g-a:5432/users
     driverClassName: org.postgresql.Driver
-    username: sa
-    password:
+    username: telegram_auth_wqr7_user
+    password: OzAZ6QAz9QG7awmYqRE5Hi6cONXRU4Js
+    hikari:
+      maximum-pool-size: "5"
   thymeleaf:
     cache: false
 
