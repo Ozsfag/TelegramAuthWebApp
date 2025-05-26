@@ -1,8 +1,22 @@
 FROM eclipse-temurin:17-jdk-jammy
+
 WORKDIR /app
+
+# Копируем только необходимые файлы для установки зависимостей
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
+
+# Даем права на выполнение mvnw
+RUN chmod +x mvnw
+
+# Устанавливаем зависимости
 RUN ./mvnw dependency:resolve
+
+# Копируем исходный код
 COPY src ./src
+
+# Собираем приложение
 RUN ./mvnw package -DskipTests
+
+# Команда для запуска
 CMD ["java", "-jar", "target/telegram-webauth-0.0.1-SNAPSHOT.jar"]
