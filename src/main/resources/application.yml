@@ -3,10 +3,10 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-d0qeieruibrs73ei1s7g-a:5432/users
+    url: jdbc:postgresql://dpg-d0qes4mmcj7s73dvt19g-a:5432/telegram_auth_g5e8
     driverClassName: org.postgresql.Driver
-    username: telegram_auth_wqr7_user
-    password: OzAZ6QAz9QG7awmYqRE5Hi6cONXRU4Js
+    username: telegram_auth_g5e8_user
+    password: K1tPuFoDsphULKB3ePihlY8LgkFyvQ1u
     hikari:
       maximum-pool-size: "5"
   thymeleaf:
