@@ -11,10 +11,12 @@ spring:
       maximum-pool-size: "5"
   thymeleaf:
     cache: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
