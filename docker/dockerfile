@@ -3,38 +3,28 @@ FROM node:18-alpine as frontend-builder
 
 WORKDIR /app
 
-# Копируем необходимые файлы для сборки фронтенда
-COPY package.json tailwind.config.js ./
+# 1. Сначала копируем только package.json
+COPY package.json ./
+
+# 2. Явно устанавливаем tailwindcss и зависимости
+RUN npm install tailwindcss postcss autoprefixer --save-dev
+
+# 3. Копируем конфигурационные файлы
+COPY tailwind.config.js ./
 COPY src/main/resources/static/css/tailwind.css ./css/
 
-# Устанавливаем зависимости и собираем CSS с помощью Tailwind
-RUN npm install
+# 4. Запускаем сборку CSS
 RUN npx tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
 
-# Этап сборки Java
+# Остальная часть Dockerfile остается без изменений
 FROM maven:3.8.6-eclipse-temurin-17-alpine as backend-builder
-
 WORKDIR /app
-
-# Копируем все файлы проекта
 COPY . .
-
-# Копируем сгенерированный CSS из предыдущего этапа
 COPY --from=frontend-builder /app/css/output.css /app/src/main/resources/static/css/
-
-# Собираем Java-приложение
 RUN mvn clean package -DskipTests
 
-# Финальный образ
 FROM eclipse-temurin:21-jre-alpine
-
 WORKDIR /app
-
-# Копируем собранный JAR файл из предыдущего этапа
 COPY --from=backend-builder /app/target/*.jar app.jar
-
-# Открываем порт 8080
 EXPOSE 8080
-
-# Команда для запуска приложения
 ENTRYPOINT ["java", "-jar", "app.jar"]
