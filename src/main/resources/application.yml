@@ -1,19 +1,23 @@
 server:
   port: 8080
+  error:
+    whitelabel:
+      enabled: false
 
 spring:
+  mvc:
+    static-path-pattern: /**
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+  # Остальные настройки остаются без изменений
   datasource:
     url: jdbc:postgresql://dpg-d0qes4mmcj7s73dvt19g-a:5432/telegram_auth_g5e8
-    driverClassName: org.postgresql.Driver
     username: telegram_auth_g5e8_user
     password: K1tPuFoDsphULKB3ePihlY8LgkFyvQ1u
     hikari:
-      maximum-pool-size: "5"
-  thymeleaf:
-    cache: false
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
-
+      maximum-pool-size: 5
   jpa:
     hibernate:
       ddl-auto: none
