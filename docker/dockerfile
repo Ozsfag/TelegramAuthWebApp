@@ -3,39 +3,40 @@ FROM node:18-alpine as frontend-builder
 
 WORKDIR /app
 
-# Установка Tailwind CSS глобально (самый надежный способ)
-RUN npm install -g tailwindcss postcss autoprefixer
+# 1. Создаем минимальный package.json
+RUN echo '{"devDependencies":{"tailwindcss":"^3.4.0"}}' > package.json
 
-# Копируем файлы для сборки CSS
+# 2. Устанавливаем Tailwind локально
+RUN npm install --no-package-lock --no-save
+
+# 3. Копируем конфигурационные файлы
 COPY tailwind.config.js ./
 COPY src/main/resources/static/css/tailwind.css ./css/
 
-# Собираем CSS
-RUN tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
+# 4. Запускаем Tailwind через npx с полным путем
+RUN npx tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
 
-# Этап сборки Java (используем JDK 21)
+# Этап сборки Java
 FROM eclipse-temurin:21-jdk-alpine as backend-builder
 
 WORKDIR /app
 
-# Устанавливаем Maven вручную
+# Устанавливаем Maven
 RUN apk add --no-cache maven
 
-# Копируем весь проект
+# Копируем проект
 COPY . .
 
-# Копируем сгенерированный CSS
+# Копируем собранный CSS
 COPY --from=frontend-builder /app/css/output.css /app/src/main/resources/static/css/
 
 # Собираем Java-приложение
 RUN mvn clean package -DskipTests
 
-# Финальный образ (JRE 21)
+# Финальный образ
 FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
-
 COPY --from=backend-builder /app/target/*.jar app.jar
-
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
