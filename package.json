@@ -1,0 +1,15 @@
+{
+  "name": "telegram-webauth",
+  "version": "1.0.0",
+  "description": "A web application for Telegram authentication",
+  "scripts": {
+    "build": "tailwindcss -i ./src/main/resources/static/css/tailwind.css -o ./src/main/resources/static/css/output.css --minify",
+    "watch": "tailwindcss -i ./src/main/resources/static/css/tailwind.css -o ./src/main/resources/static/css/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^4.0.0"
+  }
+}
