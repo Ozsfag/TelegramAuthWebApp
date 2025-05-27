@@ -12,7 +12,7 @@ RUN npm install
 RUN npx tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
 
 # Этап сборки Java
-FROM maven:3.8.6-eclipse-temurin-21-alpine as backend-builder
+FROM maven:3.8.6-eclipse-temurin-17-alpine as backend-builder
 
 WORKDIR /app
 
