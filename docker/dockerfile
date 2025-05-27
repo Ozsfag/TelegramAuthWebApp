@@ -3,18 +3,18 @@ FROM node:18-alpine as frontend-builder
 
 WORKDIR /app
 
-# 1. Сначала копируем только package.json
-COPY package.json ./
+# 1. Создаем минимальный package.json если его нет
+RUN echo '{"devDependencies":{"tailwindcss":"^3.4.0","postcss":"^8.4.35","autoprefixer":"^10.4.17"}}' > package.json
 
-# 2. Явно устанавливаем tailwindcss и зависимости
-RUN npm install tailwindcss postcss autoprefixer --save-dev
+# 2. Устанавливаем зависимости явно (без package-lock.json)
+RUN npm install tailwindcss postcss autoprefixer --no-package-lock --no-save
 
-# 3. Копируем конфигурационные файлы
+# 3. Копируем только необходимые файлы
 COPY tailwind.config.js ./
 COPY src/main/resources/static/css/tailwind.css ./css/
 
-# 4. Запускаем сборку CSS
-RUN npx tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
+# 4. Запускаем Tailwind CLI напрямую (без npx)
+RUN ./node_modules/.bin/tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
 
 # Остальная часть Dockerfile остается без изменений
 FROM maven:3.8.6-eclipse-temurin-17-alpine as backend-builder
