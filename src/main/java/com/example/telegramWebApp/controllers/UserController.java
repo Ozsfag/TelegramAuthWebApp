@@ -9,11 +9,13 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "https://telegramauthwebapp.onrender.com")
+@CrossOrigin(origins = "*")
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
@@ -21,6 +23,15 @@ public class UserController {
   private final UserMapper userMapper;
   private final UserService userService;
 
+
+    @GetMapping("/user")
+    public ResponseEntity<User> getCurrentUser(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(user);
+    }
   @GetMapping("/")
   public String home(
       Model model,
