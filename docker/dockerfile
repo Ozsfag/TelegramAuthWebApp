@@ -3,28 +3,39 @@ FROM node:18-alpine as frontend-builder
 
 WORKDIR /app
 
-# 1. Создаем минимальный package.json если его нет
-RUN echo '{"devDependencies":{"tailwindcss":"^3.4.0","postcss":"^8.4.35","autoprefixer":"^10.4.17"}}' > package.json
+# Установка Tailwind CSS глобально (самый надежный способ)
+RUN npm install -g tailwindcss postcss autoprefixer
 
-# 2. Устанавливаем зависимости явно (без package-lock.json)
-RUN npm install tailwindcss postcss autoprefixer --no-package-lock --no-save
-
-# 3. Копируем только необходимые файлы
+# Копируем файлы для сборки CSS
 COPY tailwind.config.js ./
 COPY src/main/resources/static/css/tailwind.css ./css/
 
-# 4. Запускаем Tailwind CLI напрямую (без npx)
-RUN ./node_modules/.bin/tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
+# Собираем CSS
+RUN tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
 
-# Остальная часть Dockerfile остается без изменений
-FROM maven:3.8.6-eclipse-temurin-17-alpine as backend-builder
+# Этап сборки Java (используем JDK 21)
+FROM eclipse-temurin:21-jdk-alpine as backend-builder
+
 WORKDIR /app
+
+# Устанавливаем Maven вручную
+RUN apk add --no-cache maven
+
+# Копируем весь проект
 COPY . .
+
+# Копируем сгенерированный CSS
 COPY --from=frontend-builder /app/css/output.css /app/src/main/resources/static/css/
+
+# Собираем Java-приложение
 RUN mvn clean package -DskipTests
 
+# Финальный образ (JRE 21)
 FROM eclipse-temurin:21-jre-alpine
+
 WORKDIR /app
+
 COPY --from=backend-builder /app/target/*.jar app.jar
+
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
