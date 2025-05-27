@@ -9,7 +9,7 @@ RUN npm install --no-package-lock --no-save
 COPY tailwind.config.js ./
 COPY src/main/resources/static/css/tailwind.css ./css/
 COPY src/main/resources/static/js/main.js ./src/main/resources/static/js/
-COPY src/main/resources/templates/index.html ./src/main/resources/static/
+COPY src/main/resources/templates/index.html ./src/main/resources/templates/
 
 RUN npx tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
 
@@ -21,7 +21,7 @@ RUN apk add --no-cache maven
 COPY . .
 COPY --from=frontend-builder /app/css/output.css /app/src/main/resources/static/css/
 COPY --from=frontend-builder /app/src/main/resources/static/js/main.js /app/src/main/resources/static/js/
-COPY --from=frontend-builder /app/src/main/resources/templates/index.html /app/src/main/resources/static/
+COPY --from=frontend-builder /app/src/main/resources/templates/index.html /app/src/main/resources/templates/
 
 RUN mvn clean package -DskipTests
 
