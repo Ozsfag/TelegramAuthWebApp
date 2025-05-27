@@ -18,6 +18,11 @@ spring:
     password: K1tPuFoDsphULKB3ePihlY8LgkFyvQ1u
     hikari:
       maximum-pool-size: 5
+  thymeleaf:
+    cache: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
   jpa:
     hibernate:
       ddl-auto: none
