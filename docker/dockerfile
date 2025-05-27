@@ -12,7 +12,7 @@ RUN npm install --no-package-lock --no-save
 # 3. Копируем конфигурационные файлы
 COPY tailwind.config.js ./
 COPY src/main/resources/static/css/tailwind.css ./css/
-COPY src/main/resources/static/templates/index.html ./src/main/resources/static/
+COPY src/main/resources/templates/index.html ./src/main/resources/static/
 COPY src/main/resources/static/js/main.js ./src/main/resources/static/js/
 
 # 4. Собираем CSS
