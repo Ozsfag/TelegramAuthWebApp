@@ -1,21 +1,40 @@
-FROM eclipse-temurin:21-jdk-jammy
+# Этап сборки фронтенда
+FROM node:18-alpine as frontend-builder
 
 WORKDIR /app
 
-# Устанавливаем Maven
-RUN apt-get update && apt-get install -y maven
+# Копируем необходимые файлы для сборки фронтенда
+COPY package.json tailwind.config.js ./
+COPY src/main/resources/static/css/tailwind.css ./css/
 
-# Копируем только pom.xml сначала для кэширования зависимостей
-COPY pom.xml .
+# Устанавливаем зависимости и собираем CSS с помощью Tailwind
+RUN npm install
+RUN npx tailwindcss -i ./css/tailwind.css -o ./css/output.css --minify
 
-# Скачиваем зависимости (кэшируем этот слой)
-RUN mvn dependency:go-offline -B
+# Этап сборки Java
+FROM maven:3.8.6-eclipse-temurin-21 as backend-builder
 
-# Копируем исходный код
-COPY src ./src
+WORKDIR /app
 
-# Собираем приложение
-RUN mvn package -DskipTests -B
+# Копируем все файлы проекта
+COPY . .
 
-# Команда для запуска
-CMD ["java", "-jar", "target/telegram-webauth.jar"]
+# Копируем сгенерированный CSS из предыдущего этапа
+COPY --from=frontend-builder /app/css/output.css /app/src/main/resources/static/css/
+
+# Собираем Java-приложение
+RUN mvn clean package -DskipTests
+
+# Финальный образ
+FROM eclipse-temurin:21-jre-jammy
+
+WORKDIR /app
+
+# Копируем собранный JAR файл из предыдущего этапа
+COPY --from=backend-builder /app/target/*.jar app.jar
+
+# Открываем порт 8080
+EXPOSE 8080
+
+# Команда для запуска приложения
+ENTRYPOINT ["java", "-jar", "app.jar"]
