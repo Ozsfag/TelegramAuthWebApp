@@ -20,15 +20,16 @@ spring:
 
   # Остальные настройки остаются без изменений
   datasource:
-    url: jdbc:postgresql://dpg-d0qes4mmcj7s73dvt19g-a:5432/telegram_auth_g5e8
-    username: telegram_auth_g5e8_user
-    password: K1tPuFoDsphULKB3ePihlY8LgkFyvQ1u
+    url: jdbc:postgresql://dpg-d0s2jsq4d50c73b71s4g-a:5432/telegram_auth_db_user
+    username: telegram_auth_db_user
+    password: mwJR6KXoKyv2EvF7ITe1oUfb9AGoMl75
     hikari:
       maximum-pool-size: 5
   thymeleaf:
     cache: false
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+    validate-on-migrate: false
 
   jpa:
     hibernate:
