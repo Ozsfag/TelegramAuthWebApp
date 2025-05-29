@@ -9,6 +9,9 @@
             <column name="uuid" type="UUID">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
+            <column name="telegram_id" type="bigint">
+                <constraints unique="true" nullable="false"/>
+            </column>
             <column name="first_name" type="varchar(255)"/>
             <column name="last_name" type="varchar(255)"/>
             <column name="user_name" type="varchar(255)">

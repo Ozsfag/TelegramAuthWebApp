@@ -1,61 +1,68 @@
 package com.example.telegramWebApp.controllers;
 
 import com.example.telegramWebApp.entities.User;
-import com.example.telegramWebApp.mappers.UserMapper;
-import com.example.telegramWebApp.services.TelegramAuthService;
+import com.example.telegramWebApp.services.AuthService;
 import com.example.telegramWebApp.services.UserService;
-import com.example.telegramWebApp.utils.ParserUtil;
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.constraints.NotNull;
-import java.util.Map;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@CrossOrigin(origins = "*")
-@RequestMapping("/api")
+@Controller
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class UserController {
-  private final TelegramAuthService telegramAuthService;
-  private final UserMapper userMapper;
-  private final UserService userService;
+    private final AuthService authService;
+    private final UserService userService;
 
-
-    @GetMapping("/user")
-    public ResponseEntity<User> getCurrentUser(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    // Главная страница с проверкой авторизации
+    @GetMapping("/")
+    public String home(
+            @CookieValue(name = "ACCESS_TOKEN", required = false) String accessToken,
+            Model model
+    ) {
+        if (accessToken != null && authService.validateAccessToken(accessToken)) {
+            User user = authService.getUserFromToken(accessToken);
+            model.addAttribute("user", user);
+            return "index"; // Шаблон для авторизованных
         }
-        return ResponseEntity.ok(user);
-    }
-  @GetMapping("/")
-  public String home(
-      Model model,
-      HttpSession session,
-      @RequestParam(name = "initData", required = false) @NotNull String initData) {
-    if (telegramAuthService.validateTelegramData(initData)) {
-      Map<String, String> userData = ParserUtil.extractUserData(initData);
-      User currentUser = userMapper.dataToUser(userData);
-
-      userService
-          .getUserById(currentUser.getUuid())
-          .ifPresentOrElse(
-              existingUser -> {
-                existingUser = userMapper.updateUser(existingUser, currentUser);
-                session.setAttribute("user", existingUser);
-              },
-              () -> {
-                userService.saveUser(currentUser);
-                session.setAttribute("user", currentUser);
-              });
+        return "login"; // Шаблон для гостей
     }
 
-    User user = (User) session.getAttribute("user");
-    model.addAttribute("user", user);
-    return "index";
-  }
+    // Обработка входа через Telegram
+    @PostMapping("/signin")
+    public String signIn(
+            @RequestParam String initData,
+            HttpServletResponse response,
+            Model model
+    ) {
+        try {
+            User user = authService.validateAndGetUser(initData);
+            if (user == null) {
+                return "redirect:/auth/?error=invalid_data";
+            }
+
+            // Генерация токенов и установка в cookies
+            addAuthCookies(response, user);
+            model.addAttribute("user", user);
+            return "redirect:/auth/"; // Перенаправление на главную
+
+        } catch (Exception e) {
+            return "redirect:/auth/?error=auth_failed";
+        }
+    }
+
+    private void addAuthCookies(HttpServletResponse response, User user) {
+        Cookie accessCookie = new Cookie("ACCESS_TOKEN", authService.generateAccessToken(user));
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
+
+        Cookie refreshCookie = new Cookie("REFRESH_TOKEN", authService.generateRefreshToken(user));
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        response.addCookie(refreshCookie);
+    }
 }

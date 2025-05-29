@@ -19,6 +19,9 @@ public class User {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID uuid;
 
+  @Column(name = "telegram_id", nullable = false, columnDefinition = "BIGINT", unique = true)
+  private Long telegramId;
+
   @Column(name = "first_name")
   private String firstName;
 
